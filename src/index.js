@@ -12,6 +12,8 @@ const users = [];
 
 function checksExistsUserAccount(request, response, next) {
   const {username } = request.headers;
+  request.body.username = username;
+
 
   const userExist = users.find(user => user.username === username);
 
@@ -60,10 +62,7 @@ app.get('/todos', checksExistsUserAccount, (request, response) => {
 
     const { todos } = userFind;
 
-    return response.json({
-      user: username,
-      todos
-    })
+    return response.json(todos)
 });
 
 app.post('/todos', checksExistsUserAccount, (request, response) => {
@@ -88,9 +87,8 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  const { username } = request.headers;
   const { id } = request.params;
-  const { title, deadline } = request.body;
+  const { title, deadline, username } = request.body;
 
   const userFound = users.find(user => user.username === username);
   
@@ -113,12 +111,12 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
 
   userFound.todos.splice(todoIndex, 1, updatedTodo);
 
-  return response.json(userFound);
+  return response.json(updatedTodo);
 });
 
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  const { username } = request.headers;
+  const { username } = request.body;
   const { id } = request.params;
 
   const userFound = users.find(user => user.username === username); 
@@ -141,7 +139,7 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
 
   userFound.todos.splice(todoIndex, 1, updatedTodo);
 
-  return response.json(userFound);
+  return response.json(updatedTodo);
 
 });
 
@@ -164,7 +162,7 @@ app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
         user.todos.splice(todoIndex, 1);
     }})
 
-  return response.status(200).json(userFound);
+  return response.status(204).json(userFound);
 });
 
 
